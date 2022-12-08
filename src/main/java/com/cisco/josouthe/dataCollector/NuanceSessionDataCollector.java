@@ -53,9 +53,14 @@ public class NuanceSessionDataCollector extends AGenericInterceptor {
 
     @Override
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
+        return null;
+    }
+
+    @Override
+    public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
         Object session = params[0];
         Transaction transaction = AppdynamicsAgent.getTransaction();
-        if( transaction instanceof NoOpTransaction ) return null;
+        if( transaction instanceof NoOpTransaction ) return;
         transaction.collectData("Nuance_AppTag", getReflectiveString(session, getAppTag, "UNKNOWN-APPTAG"), dataScopesAll);
         transaction.collectData("Nuance_DepartmentId", getReflectiveString(session, getDepartmentId, "UNKNOWN-DEPARTMENTID"), dataScopesAll);
         transaction.collectData("Nuance_Extension", getReflectiveString(session, getExtension, "UNKNOWN-EXTENSION"), dataScopesAll);
@@ -65,12 +70,6 @@ public class NuanceSessionDataCollector extends AGenericInterceptor {
         transaction.collectData("Nuance_XferResult", getReflectiveString(session, getXferResult, "UNKNOWN-XFERRESULT"), dataScopesAll);
         transaction.collectData("nuance_icmData_ani", getReflectiveString(session, getIcmDataAni, "UNKNOWN-ICMANI"), dataScopesAll);
         transaction.collectData("nuance_icmData_dnis", getReflectiveString(session, getIcmDataDnis, "UNKNOWN-ICMDNIS"), dataScopesAll);
-        return null;
-    }
-
-    @Override
-    public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
-
     }
 
     @Override

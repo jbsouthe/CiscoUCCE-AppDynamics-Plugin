@@ -46,23 +46,22 @@ public class ControllerDataCollector extends AGenericInterceptor {
 
     @Override
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
+        return null;
+    }
+
+    @Override
+    public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
         Object sessionContext = params[2];
         Object element = params[3];
         Object action = params[4];
         Transaction transaction = AppdynamicsAgent.getTransaction();
-        if( transaction instanceof NoOpTransaction ) return null;
+        if( transaction instanceof NoOpTransaction ) return;
         transaction.collectData("ActionName", getReflectiveString(action, toString, "UNKNOWN-ACTION"), dataScopesAll);
         transaction.collectData("ANI", getReflectiveString(sessionContext, getAni, "UNKNOWN-ANI"), dataScopesAll);
         transaction.collectData("AppName", getReflectiveString(sessionContext, getApplicationName, "UNKNOWN-APPLICATION"), dataScopesAll);
         transaction.collectData("CALL_SESSIONID", getReflectiveString(sessionContext, getSessionId, "UNKNOWN-SESSIONID"), dataScopesAll);
         transaction.collectData("DNIS", getReflectiveString(sessionContext, getDnis, "UNKNOWN-DNIS"), dataScopesAll);
         transaction.collectData("ElementName", getReflectiveString(element, toString, "UNKNOWN-ELEMENT"), dataScopesAll);
-        return null;
-    }
-
-    @Override
-    public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
-
     }
 
     @Override

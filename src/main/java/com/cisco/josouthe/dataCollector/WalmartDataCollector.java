@@ -37,15 +37,14 @@ public class WalmartDataCollector extends AGenericInterceptor {
 
     @Override
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
-        Transaction transaction = AppdynamicsAgent.getTransaction();
-        if( transaction instanceof NoOpTransaction ) return null;
-        transaction.collectData("StoreId", getReflectiveString(params[2], getStoreId, "UNKNOWN-STORE"), dataScopesAll);
         return null;
     }
 
     @Override
     public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
-
+        Transaction transaction = AppdynamicsAgent.getTransaction();
+        if( transaction instanceof NoOpTransaction ) return;
+        transaction.collectData("StoreId", getReflectiveString(params[2], getStoreId, "UNKNOWN-STORE"), dataScopesAll);
     }
 
     @Override
