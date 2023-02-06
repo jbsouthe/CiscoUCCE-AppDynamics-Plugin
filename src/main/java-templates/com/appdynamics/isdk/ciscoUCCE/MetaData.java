@@ -1,4 +1,4 @@
-package com.cisco.josouthe;
+package com.appdynamics.isdk.ciscoUCCE;
 
 public class MetaData {
     public static final String VERSION = "v${plugin-version}";
