@@ -1,4 +1,4 @@
-package com.cisco.josouthe.dataCollector;
+package com.appdynamics.isdk.ciscoUCCE.dataCollector;
 
 import com.appdynamics.agent.api.AppdynamicsAgent;
 import com.appdynamics.agent.api.Transaction;
@@ -9,22 +9,20 @@ import com.appdynamics.instrumentation.sdk.SDKClassMatchType;
 import com.appdynamics.instrumentation.sdk.template.AGenericInterceptor;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.IReflector;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.ReflectorException;
-import com.cisco.josouthe.MetaData;
+import com.appdynamics.isdk.ciscoUCCE.MetaData;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class VXMLDocDataCollector extends AGenericInterceptor {
+public class WalmartDataCollector extends AGenericInterceptor {
     /*
-    getVxmlDocumentFromDomCache	com.cisco.voicebrowser.VxmlDocument	getVxmlDocumentFromDomCache	UniqueId	POSITION_GATHERER_TYPE	0	GETTER_METHODS_OBJECT_DATA_TRANSFORMER_TYPE	ctx.uniqueId
-    getVxmlDocumentFromDomCache	com.cisco.voicebrowser.VxmlDocument	getVxmlDocumentFromDomCache	VXMLReqURL	POSITION_GATHERER_TYPE	1	TO_STRING_OBJECT_DATA_TRANSFORMER_TYPE
+    doDataAccessNuance	com.nuance.walmart.store.startcall.walst0107_InitializeCallData_DB	doDataAccess	StoreId	POSITION_GATHERER_TYPE	2	GETTER_METHODS_OBJECT_DATA_TRANSFORMER_TYPE	getCallflowData().getStoreId()
      */
-
-    IReflector toString, getCTXUniqueId;
+    IReflector getStoreId;
     private HashSet<DataScope> dataScopesAll;
 
-    public VXMLDocDataCollector() {
+    public WalmartDataCollector() {
         super();
 
         dataScopesAll = new HashSet<DataScope>() {{
@@ -32,15 +30,13 @@ public class VXMLDocDataCollector extends AGenericInterceptor {
             add(DataScope.ANALYTICS);
         }};
 
-        toString = getNewReflectionBuilder().invokeInstanceMethod("toString", true).build(); //String
-        getCTXUniqueId = getNewReflectionBuilder().accessFieldValue("ctx", true).accessFieldValue("uniqueId",true).build();
+        getStoreId = getNewReflectionBuilder().invokeInstanceMethod("getCallflowData", true).invokeInstanceMethod("getStoreId", true).build(); //String
 
         getLogger().info(String.format("Initialized plugin version %s, build date %s, contact gecos: %s", MetaData.VERSION, MetaData.BUILDTIMESTAMP, MetaData.GECOS));
     }
 
     @Override
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
-        //doing all the data collection after the method executes so we can be sure the BT has started from another interceptor
         return null;
     }
 
@@ -48,8 +44,7 @@ public class VXMLDocDataCollector extends AGenericInterceptor {
     public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
         Transaction transaction = AppdynamicsAgent.getTransaction();
         if( transaction instanceof NoOpTransaction ) return;
-        transaction.collectData("UniqueId", getReflectiveString(params[0], getCTXUniqueId, "UNKNOWN-UNIQUEID"), dataScopesAll);
-        transaction.collectData("VXMLReqURL", getReflectiveString(params[1], toString, "UNKNOWN-VXMLURL"), dataScopesAll);
+        transaction.collectData("StoreId", getReflectiveString(params[2], getStoreId, "UNKNOWN-STORE"), dataScopesAll);
     }
 
     @Override
@@ -57,9 +52,9 @@ public class VXMLDocDataCollector extends AGenericInterceptor {
         List<Rule> rules = new ArrayList<Rule>();
 
         rules.add(new Rule.Builder(
-                "com.cisco.voicebrowser.VxmlDocument")
+                "com.nuance.walmart.store.startcall.walst0107_InitializeCallData_DB")
                 .classMatchType(SDKClassMatchType.MATCHES_CLASS)
-                .methodMatchString("getVxmlDocumentFromDomCache")
+                .methodMatchString("doDataAccess")
                 .build()
         );
         return rules;

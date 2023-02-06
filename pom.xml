@@ -10,7 +10,7 @@
     </properties>
   
   <groupId>com.cisco.josouthe</groupId>
-  <artifactId>CiscoVVBAgentPlugin</artifactId>
+  <artifactId>CiscoUCCEAgentPlugin</artifactId>
     <version>${plugin-version}</version>
   <!-- <packaging>jar</packaging>  -->
 
@@ -20,11 +20,6 @@
           <artifactId>agent-api</artifactId>
           <version>20.6.0.30246</version>
       </dependency>
-        <dependency>
-            <groupId>instrumentation-sdk</groupId>
-            <artifactId>instrumentation-sdk</artifactId>
-            <version>1.0</version>
-        </dependency>
 
   </dependencies>
   <build>

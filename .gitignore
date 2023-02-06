@@ -1,5 +1,7 @@
-/src/main/java/com/cisco/josouthe/MetaData.java
+/src/main/java/com/appdynamics/isdk/ciscoUCCE/MetaData.java
 .idea/*
 target/*
 reference/*
 *.jar
+src/main/java/com/appdynamics/isdk/ciscoUCCE/MetaData.java
+**/.DS_Store

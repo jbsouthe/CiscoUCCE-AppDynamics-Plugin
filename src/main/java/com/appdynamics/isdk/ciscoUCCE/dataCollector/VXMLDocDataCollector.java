@@ -1,4 +1,4 @@
-package com.cisco.josouthe.dataCollector;
+package com.appdynamics.isdk.ciscoUCCE.dataCollector;
 
 import com.appdynamics.agent.api.AppdynamicsAgent;
 import com.appdynamics.agent.api.Transaction;
@@ -9,19 +9,22 @@ import com.appdynamics.instrumentation.sdk.SDKClassMatchType;
 import com.appdynamics.instrumentation.sdk.template.AGenericInterceptor;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.IReflector;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.ReflectorException;
-import com.cisco.josouthe.MetaData;
+import com.appdynamics.isdk.ciscoUCCE.MetaData;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class FetchDocDataCollector extends AGenericInterceptor {
+public class VXMLDocDataCollector extends AGenericInterceptor {
     /*
-    fetchDoc	com.cisco.voicebrowser.browser.Browser	fetchDoc	FetchURL	POSITION_GATHERER_TYPE	1	TO_STRING_OBJECT_DATA_TRANSFORMER_TYPE
-    */
-    private HashSet<DataScope> dataScopesAll;
+    getVxmlDocumentFromDomCache	com.cisco.voicebrowser.VxmlDocument	getVxmlDocumentFromDomCache	UniqueId	POSITION_GATHERER_TYPE	0	GETTER_METHODS_OBJECT_DATA_TRANSFORMER_TYPE	ctx.uniqueId
+    getVxmlDocumentFromDomCache	com.cisco.voicebrowser.VxmlDocument	getVxmlDocumentFromDomCache	VXMLReqURL	POSITION_GATHERER_TYPE	1	TO_STRING_OBJECT_DATA_TRANSFORMER_TYPE
+     */
 
-    public FetchDocDataCollector() {
+    IReflector toString, getCTXUniqueId, getStateString;
+    private HashSet<DataScope> dataScopesAll, dataScopeSnapshot;
+
+    public VXMLDocDataCollector() {
         super();
 
         dataScopesAll = new HashSet<DataScope>() {{
@@ -29,11 +32,18 @@ public class FetchDocDataCollector extends AGenericInterceptor {
             add(DataScope.ANALYTICS);
         }};
 
+        dataScopeSnapshot = new HashSet<DataScope>() {{ add(DataScope.SNAPSHOTS); }};
+
+        toString = getNewReflectionBuilder().invokeInstanceMethod("toString", true).build(); //String
+        getCTXUniqueId = getNewReflectionBuilder().accessFieldValue("ctx", true).accessFieldValue("uniqueId",true).build();
+        getStateString = getNewReflectionBuilder().invokeInstanceMethod("getStateString", true).build(); //String "DONE" == success
+
         getLogger().info(String.format("Initialized plugin version %s, build date %s, contact gecos: %s", MetaData.VERSION, MetaData.BUILDTIMESTAMP, MetaData.GECOS));
     }
 
     @Override
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
+        //doing all the data collection after the method executes so we can be sure the BT has started from another interceptor
         return null;
     }
 
@@ -41,7 +51,13 @@ public class FetchDocDataCollector extends AGenericInterceptor {
     public void onMethodEnd(Object state, Object object, String className, String methodName, Object[] params, Throwable exception, Object returnVal) {
         Transaction transaction = AppdynamicsAgent.getTransaction();
         if( transaction instanceof NoOpTransaction ) return;
-        transaction.collectData("FetchURL", String.valueOf(params[1]), dataScopesAll);
+        transaction.collectData("UniqueId", getReflectiveString(params[0], getCTXUniqueId, "UNKNOWN-UNIQUEID"), dataScopesAll);
+        transaction.collectData("VXMLReqURL", getReflectiveString(params[1], toString, "UNKNOWN-VXMLURL"), dataScopesAll);
+        String finalState = getReflectiveString( object, getStateString, "UNKNOWN-STATE");
+        transaction.collectData("State", finalState, dataScopeSnapshot);
+        if( !"DONE".equals(finalState) ) {
+            transaction.markAsError(String.format("Final State is not DONE: %s",finalState));
+        }
     }
 
     @Override
@@ -49,9 +65,9 @@ public class FetchDocDataCollector extends AGenericInterceptor {
         List<Rule> rules = new ArrayList<Rule>();
 
         rules.add(new Rule.Builder(
-                "com.cisco.voicebrowser.browser.Browser")
+                "com.cisco.voicebrowser.VxmlDocument")
                 .classMatchType(SDKClassMatchType.MATCHES_CLASS)
-                .methodMatchString("fetchDoc")
+                .methodMatchString("getVxmlDocumentFromDomCache")
                 .build()
         );
         return rules;

@@ -1,4 +1,4 @@
-package com.cisco.josouthe.dataCollector;
+package com.appdynamics.isdk.ciscoUCCE.dataCollector;
 
 import com.appdynamics.agent.api.AppdynamicsAgent;
 import com.appdynamics.agent.api.Transaction;
@@ -9,7 +9,7 @@ import com.appdynamics.instrumentation.sdk.SDKClassMatchType;
 import com.appdynamics.instrumentation.sdk.template.AGenericInterceptor;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.IReflector;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.ReflectorException;
-import com.cisco.josouthe.MetaData;
+import com.appdynamics.isdk.ciscoUCCE.MetaData;
 
 import java.util.ArrayList;
 import java.util.HashSet;
