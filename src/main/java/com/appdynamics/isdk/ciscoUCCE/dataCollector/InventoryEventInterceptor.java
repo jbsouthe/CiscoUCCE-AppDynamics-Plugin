@@ -21,7 +21,7 @@ public class InventoryEventInterceptor extends AGenericInterceptor {
         map.put("Plugin Contact", MetaData.GECOS);
         map.put("Java Version", System.getProperty("java.version"));
         map.put("Java Vendor", System.getProperty("java.vendor"));
-        AppdynamicsAgent.getEventPublisher().publishInfoEvent("Cisco UCCE AppDynamics iSDK Plugin Initialized", map, "APPLICATION_INFO");
+        AppdynamicsAgent.getEventPublisher().publishEvent("Cisco UCCE AppDynamics iSDK Plugin Initialized", "INFO", "APPLICATION_INFO", map);
     }
 
     @Override
