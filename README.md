@@ -20,4 +20,22 @@ UCCE has a specific configuration required within AppDynamics in order to instru
 - Exit Call support for backend calls made during call management, including added correlation headers
 - Custom Data for both Snapshots and Analytics to aid in troubleshooting and reporting.
 
+#### Flowmap
+
+![Flowmap](README-images/UCCE-flowmap.png)
+
+#### Business Transactions
+
+![Business Transactions](README-images/UCCE-business-transactions.png)
+
+#### Remote Services
+
+![](README-images/UCCE-remote-services.png)
+
+#### Snapshots and Custom Data
+
+![Snapshots](README-images/UCCE-snapshot.png)
+
+![Custom Data](README-images/UCCE-custom-data.png)
+
 ### Please create an issue on the github project for any features or bugs you would like addressed.
